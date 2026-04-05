@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Melted Pictures</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-container">
+      <div class="login-header">
+        <div class="logo">Melted<span>Pictures</span></div>
+        <p>Admin Panel</p>
+      </div>
+      <form id="login-form" class="login-form">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" name="email" required autofocus>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" name="password" required>
+        </div>
+        <div id="login-error" class="login-error"></div>
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Layout -->
+  <div id="admin-app" class="admin-layout" style="display: none;">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="logo">Melted<span>Pictures</span></a>
+        <span class="admin-badge">Admin</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-item active" data-section="dashboard">
+          <span class="icon">&#9632;</span> Dashboard
+        </a>
+        <a href="#films" class="nav-item" data-section="films">
+          <span class="icon">&#9654;</span> Films
+        </a>
+        <a href="#add-film" class="nav-item" data-section="add-film">
+          <span class="icon">+</span> Add Film
+        </a>
+        <a href="#settings" class="nav-item" data-section="settings">
+          <span class="icon">&#9881;</span> Settings
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <span id="user-name">Admin</span>
+          <button onclick="logout()" class="logout-btn">Logout</button>
+        </div>
+        <a href="/" class="view-site" target="_blank">View Site &rarr;</a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Dashboard Section -->
+      <section id="dashboard" class="content-section active">
+        <div class="section-header">
+          <h1>Dashboard</h1>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="total-films">0</div>
+            <div class="stat-label">Total Films</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="published-films">0</div>
+            <div class="stat-label">Published</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="draft-films">0</div>
+            <div class="stat-label">Drafts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="total-views">0</div>
+            <div class="stat-label">Total Views</div>
+          </div>
+        </div>
+
+        <div class="recent-films">
+          <h2>Recent Films</h2>
+          <div id="recent-films-list" class="films-table-container">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <h2>Quick Actions</h2>
+          <div class="actions-grid">
+            <button class="action-btn" onclick="showSection('add-film')">
+              <span class="icon">+</span>
+              Add New Film
+            </button>
+            <button class="action-btn" onclick="exportData()">
+              <span class="icon">&darr;</span>
+              Export Data
+            </button>
+            <button class="action-btn" onclick="document.getElementById('import-file').click()">
+              <span class="icon">&uarr;</span>
+              Import Data
+            </button>
+            <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+          </div>
+        </div>
+      </section>
+
+      <!-- Films Section -->
+      <section id="films" class="content-section">
+        <div class="section-header">
+          <h1>All Films</h1>
+          <button class="btn btn-primary" onclick="showSection('add-film')">+ Add Film</button>
+        </div>
+        <div class="filters-bar">
+          <select id="filter-status" onchange="filterFilms()">
+            <option value="all">All Status</option>
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+          </select>
+          <select id="filter-genre" onchange="filterFilms()">
+            <option value="all">All Genres</option>
+            <option value="horror">Horror</option>
+            <option value="thriller">Thriller</option>
+            <option value="scifi">Sci-Fi</option>
+            <option value="short">Short</option>
+          </select>
+          <input type="search" id="search-films" placeholder="Search films..." oninput="filterFilms()">
+        </div>
+        <div id="films-list" class="films-table-container">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Add/Edit Film Section -->
+      <section id="add-film" class="content-section">
+        <div class="section-header">
+          <h1 id="form-title">Add New Film</h1>
+        </div>
+        <form id="film-form" class="film-form">
+          <input type="hidden" id="film-id" name="id">
+
+          <div class="form-grid">
+            <div class="form-main">
+              <div class="form-group">
+                <label for="title">Film Title *</label>
+                <input type="text" id="title" name="title" required placeholder="Enter film title">
+              </div>
+
+              <div class="form-group">
+                <label for="synopsis">Synopsis *</label>
+                <textarea id="synopsis" name="synopsis" required placeholder="Write a compelling synopsis..." rows="4"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="youtube-id">YouTube Video ID *</label>
+                <input type="text" id="youtube-id" name="youtube_id" required placeholder="e.g., dQw4w9WgXcQ">
+                <small>The ID from your YouTube URL: youtube.com/watch?v=<strong>THIS_PART</strong></small>
+              </div>
+
+              <div class="form-group">
+                <label for="full-description">Full Description</label>
+                <textarea id="full-description" name="full_description" placeholder="Longer description for the film page..." rows="6"></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="director">Director</label>
+                  <input type="text" id="director" name="director" placeholder="Director name" value="Melted Pictures">
+                </div>
+                <div class="form-group">
+                  <label for="writer">Writer</label>
+                  <input type="text" id="writer" name="writer" placeholder="Writer name" value="Melted Pictures">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="credits">Additional Credits</label>
+                <textarea id="credits" name="credits" placeholder="One credit per line: Role: Name" rows="4"></textarea>
+              </div>
+            </div>
+
+            <div class="form-sidebar">
+              <div class="form-card">
+                <h3>Publish</h3>
+                <div class="form-group">
+                  <label for="status">Status</label>
+                  <select id="status" name="status">
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" id="featured" name="featured">
+                    Featured Film
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Save Film</button>
+                <button type="button" class="btn btn-outline btn-block" onclick="resetForm()">Cancel</button>
+              </div>
+
+              <div class="form-card">
+                <h3>Details</h3>
+                <div class="form-group">
+                  <label for="year">Year *</label>
+                  <input type="number" id="year" name="year" required min="2020" max="2030" value="2025">
+                </div>
+                <div class="form-group">
+                  <label for="genre">Genre *</label>
+                  <select id="genre" name="genre" required>
+                    <option value="horror">Horror</option>
+                    <option value="thriller">Thriller</option>
+                    <option value="scifi">Sci-Fi</option>
+                    <option value="scifi-horror">Sci-Fi Horror</option>
+                    <option value="psychological-thriller">Psychological Thriller</option>
+                    <option value="supernatural-thriller">Supernatural Thriller</option>
+                    <option value="found-footage">Found Footage</option>
+                    <option value="gothic-horror">Gothic Horror</option>
+                    <option value="short">Short Film</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="duration">Duration</label>
+                  <input type="text" id="duration" name="duration" placeholder="e.g., 18 min">
+                </div>
+                <div class="form-group">
+                  <label for="rating">Rating</label>
+                  <select id="rating" name="rating">
+                    <option value="TV-MA">TV-MA</option>
+                    <option value="R">R</option>
+                    <option value="TV-14">TV-14</option>
+                    <option value="PG-13">PG-13</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="release-date">Release Date</label>
+                  <input type="date" id="release-date" name="release_date">
+                </div>
+              </div>
+
+              <div class="form-card">
+                <h3>Images</h3>
+                <div class="form-group">
+                  <label for="poster">Poster Image URL</label>
+                  <input type="url" id="poster" name="poster_url" placeholder="https://...">
+                  <div class="image-preview" id="poster-preview"></div>
+                </div>
+                <div class="form-group">
+                  <label for="backdrop">Backdrop Image URL</label>
+                  <input type="url" id="backdrop" name="backdrop_url" placeholder="https://...">
+                </div>
+              </div>
+
+              <div class="form-card">
+                <h3>Tags</h3>
+                <div class="form-group">
+                  <label for="tags">Tags (comma separated)</label>
+                  <input type="text" id="tags" name="tags" placeholder="ai, horror, experimental">
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- Settings Section -->
+      <section id="settings" class="content-section">
+        <div class="section-header">
+          <h1>Settings</h1>
+        </div>
+
+        <div class="settings-grid">
+          <div class="form-card">
+            <h3>Site Information</h3>
+            <div class="form-group">
+              <label for="site-name">Site Name</label>
+              <input type="text" id="site-name" value="Melted Pictures">
+            </div>
+            <div class="form-group">
+              <label for="site-tagline">Tagline</label>
+              <input type="text" id="site-tagline" value="Where AI Meets Nightmare">
+            </div>
+            <div class="form-group">
+              <label for="site-description">Description</label>
+              <textarea id="site-description" rows="3">Pioneering AI-generated horror and thriller cinema.</textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+          </div>
+
+          <div class="form-card">
+            <h3>Social Links</h3>
+            <div class="form-group">
+              <label for="youtube-url">YouTube Channel</label>
+              <input type="url" id="youtube-url" placeholder="https://youtube.com/@...">
+            </div>
+            <div class="form-group">
+              <label for="twitter-url">X (Twitter)</label>
+              <input type="url" id="twitter-url" placeholder="https://x.com/...">
+            </div>
+            <div class="form-group">
+              <label for="instagram-url">Instagram</label>
+              <input type="url" id="instagram-url" placeholder="https://instagram.com/...">
+            </div>
+            <div class="form-group">
+              <label for="tiktok-url">TikTok</label>
+              <input type="url" id="tiktok-url" placeholder="https://tiktok.com/@...">
+            </div>
+            <button class="btn btn-primary" onclick="saveSocialLinks()">Save Social Links</button>
+          </div>
+
+          <div class="form-card">
+            <h3>Contact Information</h3>
+            <div class="form-group">
+              <label for="contact-email">Contact Email</label>
+              <input type="email" id="contact-email" placeholder="hello@meltedpictures.com">
+            </div>
+            <div class="form-group">
+              <label for="press-email">Press Email</label>
+              <input type="email" id="press-email" placeholder="press@meltedpictures.com">
+            </div>
+            <button class="btn btn-primary" onclick="saveContact()">Save Contact</button>
+          </div>
+
+          <div class="form-card">
+            <h3>Change Password</h3>
+            <div class="form-group">
+              <label for="current-password">Current Password</label>
+              <input type="password" id="current-password">
+            </div>
+            <div class="form-group">
+              <label for="new-password">New Password</label>
+              <input type="password" id="new-password">
+            </div>
+            <div class="form-group">
+              <label for="confirm-password">Confirm New Password</label>
+              <input type="password" id="confirm-password">
+            </div>
+            <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container"></div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal">
+    <div class="modal-content">
+      <h3>Delete Film?</h3>
+      <p>Are you sure you want to delete "<span id="delete-film-title"></span>"? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-danger" id="confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

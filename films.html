@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Films | Melted Pictures</title>
+  <meta name="description" content="Explore the complete collection of AI-generated horror and thriller films from Melted Pictures.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <nav class="container">
+      <a href="index.html" class="logo">Melted<span>Pictures</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="films.html" class="active">Films</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <div class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1>Our Films</h1>
+      <p>A complete collection of AI-generated horror and thriller experiences. Each film pushes the boundaries of what artificial intelligence can create.</p>
+    </div>
+  </section>
+
+  <!-- Film Filters -->
+  <section class="container">
+    <div class="film-filters">
+      <button class="filter-btn active" data-filter="all">All Films</button>
+      <button class="filter-btn" data-filter="horror">Horror</button>
+      <button class="filter-btn" data-filter="thriller">Thriller</button>
+      <button class="filter-btn" data-filter="scifi">Sci-Fi</button>
+      <button class="filter-btn" data-filter="short">Shorts</button>
+    </div>
+
+    <!-- Films Grid - Dynamic films load here, static content below as fallback -->
+    <div id="dynamic-films-grid" class="films-grid"></div>
+
+    <!-- Static Films (shown if no dynamic films) -->
+    <div id="static-films-grid" class="films-grid">
+      <a href="films/the-hollow-signal.html" class="film-card fade-in" data-genre="scifi horror">
+        <img src="images/film-1.jpg" alt="The Hollow Signal">
+        <div class="film-card-overlay">
+          <span class="ai-badge">AI Generated</span>
+          <h3>The Hollow Signal</h3>
+          <span class="year">2025</span>
+          <span class="genre">Sci-Fi Horror</span>
+        </div>
+      </a>
+
+      <a href="films/beneath-the-skin.html" class="film-card fade-in" data-genre="thriller">
+        <img src="images/film-2.jpg" alt="Beneath the Skin">
+        <div class="film-card-overlay">
+          <span class="ai-badge">AI Generated</span>
+          <h3>Beneath the Skin</h3>
+          <span class="year">2025</span>
+          <span class="genre">Psychological Thriller</span>
+        </div>
+      </a>
+
+      <a href="films/the-last-frame.html" class="film-card fade-in" data-genre="horror">
+        <img src="images/film-3.jpg" alt="The Last Frame">
+        <div class="film-card-overlay">
+          <span class="ai-badge">AI Generated</span>
+          <h3>The Last Frame</h3>
+          <span class="year">2024</span>
+          <span class="genre">Found Footage Horror</span>
+        </div>
+      </a>
+
+      <a href="films/echo-chamber.html" class="film-card fade-in" data-genre="thriller horror">
+        <img src="images/film-4.jpg" alt="Echo Chamber">
+        <div class="film-card-overlay">
+          <span class="ai-badge">AI Generated</span>
+          <h3>Echo Chamber</h3>
+          <span class="year">2024</span>
+          <span class="genre">Supernatural Thriller</span>
+        </div>
+      </a>
+
+      <a href="films/static-minds.html" class="film-card fade-in" data-genre="scifi thriller">
+        <img src="images/film-5.jpg" alt="Static Minds">
+        <div class="film-card-overlay">
+          <span class="ai-badge">AI Generated</span>
+          <h3>Static Minds</h3>
+          <span class="year">2024</span>
+          <span class="genre">Sci-Fi Thriller</span>
+        </div>
+      </a>
+
+      <a href="films/the-inheritance.html" class="film-card fade-in" data-genre="horror">
+        <img src="images/film-6.jpg" alt="The Inheritance">
+        <div class="film-card-overlay">
+          <span class="ai-badge">AI Generated</span>
+          <h3>The Inheritance</h3>
+          <span class="year">2024</span>
+          <span class="genre">Gothic Horror</span>
+        </div>
+      </a>
+
+      <a href="films/dead-air.html" class="film-card fade-in" data-genre="horror short">
+        <img src="images/film-7.jpg" alt="Dead Air">
+        <div class="film-card-overlay">
+          <span class="ai-badge">AI Generated</span>
+          <h3>Dead Air</h3>
+          <span class="year">2024</span>
+          <span class="genre">Horror Short</span>
+        </div>
+      </a>
+
+      <a href="films/the-loop.html" class="film-card fade-in" data-genre="scifi short">
+        <img src="images/film-8.jpg" alt="The Loop">
+        <div class="film-card-overlay">
+          <span class="ai-badge">AI Generated</span>
+          <h3>The Loop</h3>
+          <span class="year">2024</span>
+          <span class="genre">Sci-Fi Short</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Coming Soon -->
+  <section class="container" style="padding-top: 2rem;">
+    <div class="section-header">
+      <h2>Coming Soon</h2>
+    </div>
+    <div class="films-grid">
+      <div class="film-card fade-in" style="opacity: 0.6; pointer-events: none;">
+        <img src="images/coming-soon-1.jpg" alt="Untitled Project">
+        <div class="film-card-overlay" style="transform: translateY(0);">
+          <span class="featured-label">In Production</span>
+          <h3>Untitled Project</h3>
+          <span class="year">2025</span>
+          <span class="genre">TBA</span>
+        </div>
+      </div>
+      <div class="film-card fade-in" style="opacity: 0.6; pointer-events: none;">
+        <img src="images/coming-soon-2.jpg" alt="Untitled Project">
+        <div class="film-card-overlay" style="transform: translateY(0);">
+          <span class="featured-label">In Development</span>
+          <h3>Untitled Project</h3>
+          <span class="year">2025</span>
+          <span class="genre">TBA</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">Melted<span>Pictures</span></a>
+          <p>Pioneering AI-generated horror and thriller cinema. Where artificial intelligence meets your darkest nightmares.</p>
+          <div class="social-links">
+            <a href="#" aria-label="YouTube">YT</a>
+            <a href="#" aria-label="Twitter">X</a>
+            <a href="#" aria-label="Instagram">IG</a>
+          </div>
+        </div>
+        <div class="footer-links">
+          <h4>Navigate</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="films.html">Films</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Films</h4>
+          <ul>
+            <li><a href="films/the-hollow-signal.html">The Hollow Signal</a></li>
+            <li><a href="films/beneath-the-skin.html">Beneath the Skin</a></li>
+            <li><a href="films/the-last-frame.html">The Last Frame</a></li>
+            <li><a href="films/echo-chamber.html">Echo Chamber</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Connect</h4>
+          <ul>
+            <li><a href="contact.html">Get in Touch</a></li>
+            <li><a href="#">Submit a Script</a></li>
+            <li><a href="#">Press Kit</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Melted Pictures. All rights reserved.</p>
+        <p>AI-Powered Horror Cinema</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/films-loader.js"></script>
+</body>
+</html>
