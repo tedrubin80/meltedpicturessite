@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const express = require('express');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
@@ -20,6 +21,9 @@ const { loadUser } = require('./middleware/auth');
 const authRoutes = require('./routes/auth');
 const filmsRoutes = require('./routes/films');
 const settingsRoutes = require('./routes/settings');
+const subscribeRoutes = require('./routes/subscribe');
+const contactRoutes = require('./routes/contact');
+const uploadsRoutes = require('./routes/uploads');
 const pagesRoutes = require('./routes/pages');
 
 const app = express();
@@ -36,7 +40,8 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://plausible.io"],
+      connectSrc: ["'self'", "https://plausible.io"],
       frameSrc: ["https://www.youtube.com", "https://youtube.com"],
     },
   },
@@ -63,13 +68,30 @@ const authLimiter = rateLimit({
   message: { error: 'Too many login attempts, please try again later' },
 });
 
+const subscribeLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many subscription attempts, please try again later' },
+});
+
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 8,
+  message: { error: 'Too many messages sent, please try again later' },
+});
+
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Session configuration
+// Session configuration (PostgreSQL-backed)
 app.use(session({
+  store: new pgSession({
+    pool: db.pool,
+    tableName: 'sessions',
+    createTableIfMissing: false,
+  }),
   secret: process.env.SESSION_SECRET || 'melted-pictures-secret-change-me',
   resave: false,
   saveUninitialized: false,
@@ -93,6 +115,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/films', apiLimiter, filmsRoutes);
 app.use('/api/settings', apiLimiter, settingsRoutes);
+app.use('/api/subscribe', subscribeLimiter, subscribeRoutes);
+app.use('/api/contact', contactLimiter, contactRoutes);
+app.use('/api/uploads', apiLimiter, uploadsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -131,18 +156,28 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log('');
-  console.log('═══════════════════════════════════════════');
-  console.log('🎬 Melted Pictures Server');
-  console.log('═══════════════════════════════════════════');
-  console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`   Server:      http://localhost:${PORT}`);
-  console.log(`   Admin:       http://localhost:${PORT}/admin`);
-  console.log(`   API:         http://localhost:${PORT}/api`);
-  console.log('═══════════════════════════════════════════');
-  console.log('');
-});
+// Start server after lightweight migrations
+async function start() {
+  try {
+    await db.ensureMigrations();
+  } catch (err) {
+    console.error('Database migration warning:', err.message);
+  }
+
+  app.listen(PORT, () => {
+    console.log('');
+    console.log('═══════════════════════════════════════════');
+    console.log('🎬 Melted Pictures Server');
+    console.log('═══════════════════════════════════════════');
+    console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`   Server:      http://localhost:${PORT}`);
+    console.log(`   Admin:       http://localhost:${PORT}/admin`);
+    console.log(`   API:         http://localhost:${PORT}/api`);
+    console.log('═══════════════════════════════════════════');
+    console.log('');
+  });
+}
+
+start();
 
 module.exports = app;

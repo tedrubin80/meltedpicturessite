@@ -82,6 +82,18 @@ CREATE TABLE IF NOT EXISTS activity_log (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Contact form inquiries (admin inbox)
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(200) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  subject VARCHAR(300) NOT NULL,
+  message TEXT NOT NULL,
+  read BOOLEAN DEFAULT FALSE,
+  ip_address VARCHAR(45),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for performance
 CREATE INDEX IF NOT EXISTS idx_films_status ON films(status);
 CREATE INDEX IF NOT EXISTS idx_films_featured ON films(featured);
@@ -90,6 +102,8 @@ CREATE INDEX IF NOT EXISTS idx_films_created_at ON films(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sessions_expire ON sessions(expire);
 CREATE INDEX IF NOT EXISTS idx_activity_log_user ON activity_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_log_created ON activity_log(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_created ON contact_messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_read ON contact_messages(read);
 
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -124,6 +138,7 @@ const defaultSettings = [
   ['twitter_url', ''],
   ['instagram_url', ''],
   ['tiktok_url', ''],
+  ['plausible_domain', ''],
 ];
 
 async function initDatabase() {

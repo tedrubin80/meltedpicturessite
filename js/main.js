@@ -64,18 +64,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Film filter functionality
   const filterBtns = document.querySelectorAll('.filter-btn');
-  const filmCards = document.querySelectorAll('.film-card[data-genre]');
 
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      // Update active button
       filterBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
       const filter = btn.dataset.filter;
-
-      filmCards.forEach(card => {
-        const genres = card.dataset.genre || '';
+      // Re-query so dynamically loaded film cards are included
+      document.querySelectorAll('.film-card[data-genre]').forEach(card => {
+        const genres = (card.dataset.genre || '').toLowerCase().replace(/-/g, '');
 
         if (filter === 'all' || genres.includes(filter)) {
           card.style.display = '';
@@ -105,21 +103,126 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Contact form handling (basic)
+  // Contact inquiry form → /api/contact (admin inbox)
   const contactForm = document.querySelector('.contact-form');
 
   if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    const statusEl = contactForm.querySelector('.contact-form-status');
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Get form data
       const formData = new FormData(contactForm);
-      const data = Object.fromEntries(formData);
+      const payload = {
+        name: (formData.get('name') || '').toString().trim(),
+        email: (formData.get('email') || '').toString().trim(),
+        subject: (formData.get('subject') || '').toString().trim(),
+        message: (formData.get('message') || '').toString().trim(),
+        website: (formData.get('website') || '').toString(),
+      };
 
-      // Here you would typically send to a backend
-      // For now, show a success message
-      alert('Thank you for your message! We\'ll get back to you soon.');
-      contactForm.reset();
+      if (statusEl) {
+        statusEl.hidden = true;
+        statusEl.classList.remove('is-success', 'is-error');
+      }
+
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (statusEl) {
+          statusEl.hidden = false;
+          if (res.ok && data.success) {
+            statusEl.classList.add('is-success');
+            statusEl.textContent = data.message || "Thanks — we'll get back to you soon.";
+            contactForm.reset();
+          } else {
+            statusEl.classList.add('is-error');
+            statusEl.textContent = data.error || 'Could not send message. Please try again.';
+          }
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.classList.add('is-error');
+          statusEl.textContent = 'Could not reach the server. Please try again.';
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  // Newsletter → Listmonk (via /api/subscribe proxy)
+  const newsletterForm = document.querySelector('.newsletter-form');
+
+  if (newsletterForm) {
+    const statusEl = newsletterForm.querySelector('.newsletter-status');
+    const submitBtn = newsletterForm.querySelector('button[type="submit"]');
+
+    newsletterForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(newsletterForm);
+      const email = (formData.get('email') || '').toString().trim();
+      const website = (formData.get('website') || '').toString();
+
+      if (statusEl) {
+        statusEl.hidden = true;
+        statusEl.classList.remove('is-success', 'is-error');
+      }
+
+      if (!email) {
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.classList.add('is-error');
+          statusEl.textContent = 'Enter a valid email address.';
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+      }
+
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, website }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (statusEl) {
+          statusEl.hidden = false;
+          if (res.ok && data.success) {
+            statusEl.classList.add('is-success');
+            statusEl.textContent = data.message || 'Thanks — check your inbox to confirm.';
+            newsletterForm.reset();
+          } else {
+            statusEl.classList.add('is-error');
+            statusEl.textContent = data.error || 'Something went wrong. Please try again.';
+          }
+        }
+      } catch (err) {
+        if (statusEl) {
+          statusEl.hidden = false;
+          statusEl.classList.add('is-error');
+          statusEl.textContent = 'Could not reach the server. Please try again.';
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+        }
+      }
     });
   }
 

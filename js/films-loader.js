@@ -17,8 +17,10 @@ async function loadPublicFilms() {
 
     // Load films grid if on films page
     const filmsGrid = document.getElementById('dynamic-films-grid');
+    const staticGrid = document.getElementById('static-films-grid');
     if (filmsGrid && films.length > 0) {
       renderFilmsGrid(filmsGrid, films);
+      if (staticGrid) staticGrid.hidden = true;
     }
 
     // Load featured film if on home page
@@ -31,9 +33,18 @@ async function loadPublicFilms() {
     }
 
     // Load home page film grid
-    const homeGrid = document.querySelector('.films-grid:not(#dynamic-films-grid):not(#static-films-grid)');
+    const homeGrid = document.getElementById('home-films-grid')
+      || document.querySelector('.films-grid:not(#dynamic-films-grid):not(#static-films-grid)');
     if (homeGrid && films.length > 0) {
       renderFilmsGrid(homeGrid, films.slice(0, 4));
+    }
+
+    // Footer film shortcuts (published films only)
+    const footerFilms = document.getElementById('footer-films-list');
+    if (footerFilms && films.length > 0) {
+      footerFilms.innerHTML = films.slice(0, 4).map(film => `
+        <li><a href="/film/${escapeHtml(film.slug)}">${escapeHtml(film.title)}</a></li>
+      `).join('');
     }
 
   } catch (error) {

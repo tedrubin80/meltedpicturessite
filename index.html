@@ -34,7 +34,7 @@
     <div class="hero-bg"></div>
     <div class="hero-content container">
       <h1>Where AI Meets<br>Nightmare</h1>
-      <p class="tagline">Pioneering the future of horror and thriller cinema through artificial intelligence</p>
+      <p class="tagline" data-setting-text="site_description">Pioneering the future of horror and thriller cinema through artificial intelligence</p>
       <a href="films.html" class="btn btn-primary cta-btn">Explore Our Films</a>
     </div>
   </section>
@@ -50,7 +50,7 @@
         <span class="ai-badge">AI Generated</span>
         <h2>The Hollow Signal</h2>
         <p>When a radio astronomer receives a transmission from deep space, she discovers that some signals should never be answered.</p>
-        <a href="films/the-hollow-signal.html" class="btn btn-outline">Watch Now</a>
+        <a href="/film/the-hollow-signal" class="btn btn-outline">Watch Now</a>
       </div>
     </div>
   </section>
@@ -61,8 +61,8 @@
       <h2>Our Films</h2>
       <a href="films.html" class="view-all">View All &rarr;</a>
     </div>
-    <div class="films-grid">
-      <a href="films/the-hollow-signal.html" class="film-card fade-in">
+    <div id="home-films-grid" class="films-grid">
+      <a href="/film/the-hollow-signal" class="film-card fade-in">
         <img src="images/film-1.jpg" alt="The Hollow Signal">
         <div class="film-card-overlay">
           <h3>The Hollow Signal</h3>
@@ -70,7 +70,7 @@
           <span class="genre">Sci-Fi Horror</span>
         </div>
       </a>
-      <a href="films/beneath-the-skin.html" class="film-card fade-in">
+      <a href="/film/beneath-the-skin" class="film-card fade-in">
         <img src="images/film-2.jpg" alt="Beneath the Skin">
         <div class="film-card-overlay">
           <h3>Beneath the Skin</h3>
@@ -78,7 +78,7 @@
           <span class="genre">Psychological Thriller</span>
         </div>
       </a>
-      <a href="films/the-last-frame.html" class="film-card fade-in">
+      <a href="/film/the-last-frame" class="film-card fade-in">
         <img src="images/film-3.jpg" alt="The Last Frame">
         <div class="film-card-overlay">
           <h3>The Last Frame</h3>
@@ -86,7 +86,7 @@
           <span class="genre">Found Footage Horror</span>
         </div>
       </a>
-      <a href="films/echo-chamber.html" class="film-card fade-in">
+      <a href="/film/echo-chamber" class="film-card fade-in">
         <img src="images/film-4.jpg" alt="Echo Chamber">
         <div class="film-card-overlay">
           <h3>Echo Chamber</h3>
@@ -140,11 +140,12 @@
       <div class="footer-content">
         <div class="footer-brand">
           <a href="index.html" class="logo">Melted<span>Pictures</span></a>
-          <p>Pioneering AI-generated horror and thriller cinema. Where artificial intelligence meets your darkest nightmares.</p>
+          <p data-setting-text="site_description">Pioneering AI-generated horror and thriller cinema. Where artificial intelligence meets your darkest nightmares.</p>
           <div class="social-links">
-            <a href="#" aria-label="YouTube">YT</a>
-            <a href="#" aria-label="Twitter">X</a>
-            <a href="#" aria-label="Instagram">IG</a>
+            <a href="#" data-setting-href="youtube_url" aria-label="YouTube">YT</a>
+            <a href="#" data-setting-href="twitter_url" aria-label="Twitter">X</a>
+            <a href="#" data-setting-href="instagram_url" aria-label="Instagram">IG</a>
+            <a href="#" data-setting-href="tiktok_url" aria-label="TikTok">TT</a>
           </div>
         </div>
         <div class="footer-links">
@@ -158,20 +159,25 @@
         </div>
         <div class="footer-links">
           <h4>Films</h4>
-          <ul>
-            <li><a href="films/the-hollow-signal.html">The Hollow Signal</a></li>
-            <li><a href="films/beneath-the-skin.html">Beneath the Skin</a></li>
-            <li><a href="films/the-last-frame.html">The Last Frame</a></li>
-            <li><a href="films/echo-chamber.html">Echo Chamber</a></li>
+          <ul id="footer-films-list">
+            <li><a href="/film/the-hollow-signal">The Hollow Signal</a></li>
+            <li><a href="/film/beneath-the-skin">Beneath the Skin</a></li>
+            <li><a href="/film/the-last-frame">The Last Frame</a></li>
+            <li><a href="/film/echo-chamber">Echo Chamber</a></li>
           </ul>
         </div>
-        <div class="footer-links">
-          <h4>Connect</h4>
-          <ul>
-            <li><a href="contact.html">Get in Touch</a></li>
-            <li><a href="#">Submit a Script</a></li>
-            <li><a href="#">Press Kit</a></li>
-          </ul>
+        <div class="footer-newsletter">
+          <h4>Newsletter</h4>
+          <p>New films and studio updates. Unsubscribe anytime.</p>
+          <form class="newsletter-form" action="/api/subscribe" method="POST" novalidate>
+            <input type="text" name="website" class="newsletter-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <label class="visually-hidden" for="newsletter-email">Email</label>
+            <div class="newsletter-row">
+              <input type="email" id="newsletter-email" name="email" required placeholder="you@email.com" autocomplete="email">
+              <button type="submit" class="btn btn-primary">Subscribe</button>
+            </div>
+            <p class="newsletter-status" role="status" aria-live="polite" hidden></p>
+          </form>
         </div>
       </div>
       <div class="footer-bottom">
@@ -181,6 +187,7 @@
     </div>
   </footer>
 
+  <script src="js/site-settings.js"></script>
   <script src="js/main.js"></script>
   <script src="js/films-loader.js"></script>
 </body>

@@ -50,6 +50,10 @@
         <a href="#add-film" class="nav-item" data-section="add-film">
           <span class="icon">+</span> Add Film
         </a>
+        <a href="#messages" class="nav-item" data-section="messages">
+          <span class="icon">&#9993;</span> Messages
+          <span id="messages-badge" class="nav-badge" hidden>0</span>
+        </a>
         <a href="#settings" class="nav-item" data-section="settings">
           <span class="icon">&#9881;</span> Settings
         </a>
@@ -253,12 +257,21 @@
                 <h3>Images</h3>
                 <div class="form-group">
                   <label for="poster">Poster Image URL</label>
-                  <input type="url" id="poster" name="poster_url" placeholder="https://...">
+                  <input type="url" id="poster" name="poster_url" placeholder="https://... or upload below">
+                  <div class="upload-row">
+                    <input type="file" id="poster-file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+                    <button type="button" class="btn btn-outline btn-block" onclick="document.getElementById('poster-file').click()">Upload Poster</button>
+                  </div>
                   <div class="image-preview" id="poster-preview"></div>
                 </div>
                 <div class="form-group">
                   <label for="backdrop">Backdrop Image URL</label>
-                  <input type="url" id="backdrop" name="backdrop_url" placeholder="https://...">
+                  <input type="url" id="backdrop" name="backdrop_url" placeholder="https://... or upload below">
+                  <div class="upload-row">
+                    <input type="file" id="backdrop-file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+                    <button type="button" class="btn btn-outline btn-block" onclick="document.getElementById('backdrop-file').click()">Upload Backdrop</button>
+                  </div>
+                  <div class="image-preview" id="backdrop-preview"></div>
                 </div>
               </div>
 
@@ -272,6 +285,17 @@
             </div>
           </div>
         </form>
+      </section>
+
+      <!-- Messages Section -->
+      <section id="messages" class="content-section">
+        <div class="section-header">
+          <h1>Messages</h1>
+          <button class="btn btn-outline" onclick="loadMessages()">Refresh</button>
+        </div>
+        <div id="messages-list" class="messages-list">
+          <!-- Populated by JS -->
+        </div>
       </section>
 
       <!-- Settings Section -->
@@ -330,6 +354,16 @@
               <input type="email" id="press-email" placeholder="press@meltedpictures.com">
             </div>
             <button class="btn btn-primary" onclick="saveContact()">Save Contact</button>
+          </div>
+
+          <div class="form-card">
+            <h3>Analytics</h3>
+            <div class="form-group">
+              <label for="plausible-domain">Plausible Domain</label>
+              <input type="text" id="plausible-domain" placeholder="meltedpictures.com">
+              <small>Privacy-friendly analytics. Leave blank to disable. Loads Plausible script on public pages.</small>
+            </div>
+            <button class="btn btn-primary" onclick="saveAnalytics()">Save Analytics</button>
           </div>
 
           <div class="form-card">

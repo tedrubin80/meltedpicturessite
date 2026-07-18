@@ -24,7 +24,26 @@ pool.on('error', (err) => {
   console.error('Unexpected database error:', err);
 });
 
+/** Ensure tables added after initial deploy exist (idempotent). */
+async function ensureMigrations() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS contact_messages (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      name VARCHAR(200) NOT NULL,
+      email VARCHAR(255) NOT NULL,
+      subject VARCHAR(300) NOT NULL,
+      message TEXT NOT NULL,
+      read BOOLEAN DEFAULT FALSE,
+      ip_address VARCHAR(45),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_contact_messages_created ON contact_messages(created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_contact_messages_read ON contact_messages(read);
+  `);
+}
+
 module.exports = {
   query: (text, params) => pool.query(text, params),
   pool,
+  ensureMigrations,
 };

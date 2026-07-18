@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   initFilmForm();
   initPosterPreview();
+  initImageUploads();
 });
 
 // ============================================
@@ -48,6 +49,7 @@ function showAdminApp(user) {
   // Load initial data
   loadDashboard();
   loadSettings();
+  loadUnreadCount();
 }
 
 function initLoginForm() {
@@ -162,8 +164,104 @@ function showSection(sectionId) {
 
   if (sectionId === 'dashboard') loadDashboard();
   if (sectionId === 'films') loadFilmsList();
+  if (sectionId === 'messages') loadMessages();
   if (sectionId === 'add-film' && !document.getElementById('film-id').value) {
     resetForm();
+  }
+}
+
+// ============================================
+// Contact Messages
+// ============================================
+
+async function loadUnreadCount() {
+  try {
+    const res = await fetch(`${API_BASE}/contact/unread-count`, { credentials: 'include' });
+    if (!res.ok) return;
+    const data = await res.json();
+    const badge = document.getElementById('messages-badge');
+    if (!badge) return;
+    if (data.count > 0) {
+      badge.hidden = false;
+      badge.textContent = String(data.count);
+    } else {
+      badge.hidden = true;
+    }
+  } catch (err) {
+    // ignore
+  }
+}
+
+async function loadMessages() {
+  const container = document.getElementById('messages-list');
+  if (!container) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/contact`, { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to load messages');
+    const messages = await res.json();
+    loadUnreadCount();
+
+    if (!messages.length) {
+      container.innerHTML = '<p class="empty-state">No messages yet.</p>';
+      return;
+    }
+
+    container.innerHTML = messages.map((m) => `
+      <article class="message-card ${m.read ? 'is-read' : 'is-unread'}" data-id="${m.id}">
+        <div class="message-meta">
+          <strong>${escapeHtml(m.name)}</strong>
+          <a href="mailto:${escapeHtml(m.email)}">${escapeHtml(m.email)}</a>
+          <time>${new Date(m.created_at).toLocaleString()}</time>
+        </div>
+        <h3>${escapeHtml(m.subject)}</h3>
+        <p class="message-body">${escapeHtml(m.message)}</p>
+        <div class="message-actions">
+          ${m.read
+            ? `<button class="btn btn-outline" onclick="toggleMessageRead('${m.id}', false)">Mark unread</button>`
+            : `<button class="btn btn-primary" onclick="toggleMessageRead('${m.id}', true)">Mark read</button>`}
+          <button class="btn btn-danger" onclick="deleteMessage('${m.id}')">Delete</button>
+        </div>
+      </article>
+    `).join('');
+  } catch (err) {
+    container.innerHTML = '<p class="empty-state">Could not load messages.</p>';
+  }
+}
+
+async function toggleMessageRead(id, read) {
+  try {
+    const res = await fetch(`${API_BASE}/contact/${id}/read`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ read }),
+    });
+    if (res.ok) {
+      loadMessages();
+    } else {
+      showToast('Failed to update message', 'error');
+    }
+  } catch (err) {
+    showToast('Connection error', 'error');
+  }
+}
+
+async function deleteMessage(id) {
+  if (!confirm('Delete this message?')) return;
+  try {
+    const res = await fetch(`${API_BASE}/contact/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    if (res.ok) {
+      showToast('Message deleted', 'success');
+      loadMessages();
+    } else {
+      showToast('Failed to delete message', 'error');
+    }
+  } catch (err) {
+    showToast('Connection error', 'error');
   }
 }
 
@@ -302,7 +400,7 @@ function renderFilmsTable(films) {
             <td>
               <div class="row-actions">
                 <button onclick="editFilm('${film.id}')">Edit</button>
-                <button onclick="previewFilm('${film.id}')">Preview</button>
+                <button onclick="previewFilm('${escapeHtml(film.slug)}')">Preview</button>
                 <button class="delete" onclick="confirmDelete('${film.id}', '${escapeHtml(film.title)}')">Delete</button>
               </div>
             </td>
@@ -338,6 +436,67 @@ function initPosterPreview() {
       preview.innerHTML = '';
     }
   });
+
+  const backdrop = document.getElementById('backdrop');
+  if (backdrop) {
+    backdrop.addEventListener('input', (e) => {
+      const preview = document.getElementById('backdrop-preview');
+      if (!preview) return;
+      if (e.target.value) {
+        preview.innerHTML = `<img src="${escapeHtml(e.target.value)}" alt="Preview" onerror="this.parentElement.innerHTML=''">`;
+      } else {
+        preview.innerHTML = '';
+      }
+    });
+  }
+}
+
+function initImageUploads() {
+  const posterFile = document.getElementById('poster-file');
+  const backdropFile = document.getElementById('backdrop-file');
+
+  if (posterFile) {
+    posterFile.addEventListener('change', async () => {
+      if (!posterFile.files?.[0]) return;
+      await uploadImageFile(posterFile.files[0], 'poster', 'poster-preview');
+      posterFile.value = '';
+    });
+  }
+
+  if (backdropFile) {
+    backdropFile.addEventListener('change', async () => {
+      if (!backdropFile.files?.[0]) return;
+      await uploadImageFile(backdropFile.files[0], 'backdrop', 'backdrop-preview');
+      backdropFile.value = '';
+    });
+  }
+}
+
+async function uploadImageFile(file, inputId, previewId) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  try {
+    showToast('Uploading image…', 'success');
+    const res = await fetch(`${API_BASE}/uploads`, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || 'Upload failed');
+    }
+
+    document.getElementById(inputId).value = data.url;
+    const preview = document.getElementById(previewId);
+    if (preview) {
+      preview.innerHTML = `<img src="${escapeHtml(data.url)}" alt="Preview">`;
+    }
+    showToast('Image uploaded', 'success');
+  } catch (err) {
+    showToast(err.message || 'Upload failed', 'error');
+  }
 }
 
 async function saveFilm() {
@@ -422,6 +581,14 @@ async function editFilm(id) {
     } else {
       preview.innerHTML = '';
     }
+    const backdropPreview = document.getElementById('backdrop-preview');
+    if (backdropPreview) {
+      if (film.backdrop_url) {
+        backdropPreview.innerHTML = `<img src="${escapeHtml(film.backdrop_url)}" alt="Preview">`;
+      } else {
+        backdropPreview.innerHTML = '';
+      }
+    }
 
     showSection('add-film');
   } catch (error) {
@@ -434,6 +601,8 @@ function resetForm() {
   document.getElementById('form-title').textContent = 'Add New Film';
   document.getElementById('film-id').value = '';
   document.getElementById('poster-preview').innerHTML = '';
+  const backdropPreview = document.getElementById('backdrop-preview');
+  if (backdropPreview) backdropPreview.innerHTML = '';
   document.getElementById('director').value = 'Melted Pictures';
   document.getElementById('writer').value = 'Melted Pictures';
 }
@@ -442,8 +611,9 @@ function resetForm() {
 // Preview
 // ============================================
 
-function previewFilm(id) {
-  window.open(`/films/${id}`, '_blank');
+function previewFilm(slug) {
+  if (!slug) return;
+  window.open(`/film/${slug}`, '_blank');
 }
 
 // ============================================
@@ -509,6 +679,7 @@ async function loadSettings() {
     if (settings.tiktok_url) document.getElementById('tiktok-url').value = settings.tiktok_url;
     if (settings.contact_email) document.getElementById('contact-email').value = settings.contact_email;
     if (settings.press_email) document.getElementById('press-email').value = settings.press_email;
+    if (settings.plausible_domain) document.getElementById('plausible-domain').value = settings.plausible_domain;
   } catch (error) {
     console.error('Settings load error:', error);
   }
@@ -535,6 +706,12 @@ async function saveContact() {
   await updateSettings({
     contact_email: document.getElementById('contact-email').value,
     press_email: document.getElementById('press-email').value,
+  });
+}
+
+async function saveAnalytics() {
+  await updateSettings({
+    plausible_domain: document.getElementById('plausible-domain').value.trim(),
   });
 }
 
@@ -692,5 +869,9 @@ window.filterFilms = filterFilms;
 window.saveSettings = saveSettings;
 window.saveSocialLinks = saveSocialLinks;
 window.saveContact = saveContact;
+window.saveAnalytics = saveAnalytics;
 window.changePassword = changePassword;
+window.loadMessages = loadMessages;
+window.toggleMessageRead = toggleMessageRead;
+window.deleteMessage = deleteMessage;
 window.logout = logout;

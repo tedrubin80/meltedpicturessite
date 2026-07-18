@@ -167,11 +167,12 @@ function generateFilmPage(film) {
       <div class="footer-content">
         <div class="footer-brand">
           <a href="/" class="logo">Melted<span>Pictures</span></a>
-          <p>Pioneering AI-generated horror and thriller cinema.</p>
+          <p data-setting-text="site_description">Pioneering AI-generated horror and thriller cinema.</p>
           <div class="social-links">
-            <a href="#" aria-label="YouTube">YT</a>
-            <a href="#" aria-label="Twitter">X</a>
-            <a href="#" aria-label="Instagram">IG</a>
+            <a href="#" data-setting-href="youtube_url" aria-label="YouTube">YT</a>
+            <a href="#" data-setting-href="twitter_url" aria-label="Twitter">X</a>
+            <a href="#" data-setting-href="instagram_url" aria-label="Instagram">IG</a>
+            <a href="#" data-setting-href="tiktok_url" aria-label="TikTok">TT</a>
           </div>
         </div>
         <div class="footer-links">
@@ -183,6 +184,19 @@ function generateFilmPage(film) {
             <li><a href="/contact.html">Contact</a></li>
           </ul>
         </div>
+        <div class="footer-newsletter">
+          <h4>Newsletter</h4>
+          <p>New films and studio updates. Unsubscribe anytime.</p>
+          <form class="newsletter-form" action="/api/subscribe" method="POST" novalidate>
+            <input type="text" name="website" class="newsletter-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <label class="visually-hidden" for="newsletter-email">Email</label>
+            <div class="newsletter-row">
+              <input type="email" id="newsletter-email" name="email" required placeholder="you@email.com" autocomplete="email">
+              <button type="submit" class="btn btn-primary">Subscribe</button>
+            </div>
+            <p class="newsletter-status" role="status" aria-live="polite" hidden></p>
+          </form>
+        </div>
       </div>
       <div class="footer-bottom">
         <p>&copy; 2025 Melted Pictures. All rights reserved.</p>
@@ -191,6 +205,7 @@ function generateFilmPage(film) {
     </div>
   </footer>
 
+  <script src="/js/site-settings.js"></script>
   <script src="/js/main.js"></script>
 </body>
 </html>`;
